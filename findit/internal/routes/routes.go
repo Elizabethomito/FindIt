@@ -26,5 +26,9 @@ func Register() *http.ServeMux {
 		}
 	})
 
+	// Serve frontend static files
+	fs := http.FileServer(http.Dir("frontend"))
+	mux.Handle("/", fs)
+
 	return mux
 }
