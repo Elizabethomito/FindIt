@@ -22,8 +22,8 @@ RUN CGO_ENABLED=1 GOOS=linux go build -o findit-server ./cmd/server
 # Stage 2: Runtime stage
 FROM alpine:latest
 
-# Install runtime dependencies for SQLite
-RUN apk add --no-cache ca-certificates tzdata
+# Install runtime dependencies for SQLite and health check
+RUN apk add --no-cache ca-certificates tzdata wget
 
 # Create non-root user for security
 RUN addgroup -g 1001 -S appgroup && \
@@ -38,7 +38,7 @@ COPY --from=builder /app/findit-server .
 # Copy frontend files
 COPY --from=builder /app/frontend ./frontend
 
-# Copy database directory (will be created at runtime if needed)
+# Create data directory for database
 RUN mkdir -p /app/data
 
 # Change ownership to non-root user
@@ -47,8 +47,16 @@ RUN chown -R appuser:appgroup /app
 # Switch to non-root user
 USER appuser
 
+# Set environment variables for Render
+ENV PORT=8080
+ENV DB_PATH=/app/data/findit.db
+
 # Expose the application port
 EXPOSE 8080
+
+# Health check for Render
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:${PORT}/health || exit 1
 
 # Run the application
 CMD ["./findit-server"]

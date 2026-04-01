@@ -27,6 +27,12 @@ func corsMiddleware(next http.Handler) http.Handler {
 func Register() http.Handler {
 	mux := http.NewServeMux()
 
+	// Health check endpoint for Render
+	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("OK"))
+	})
+
 	// Auth
 	mux.HandleFunc("/signup", handlers.Signup)
 	mux.HandleFunc("/login", handlers.Login)

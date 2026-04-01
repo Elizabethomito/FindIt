@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"log"
+	"os"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -11,8 +12,14 @@ var DB *sql.DB
 
 // Init opens (or creates) the SQLite database and ensures tables exist.
 func Init() {
+	// Use DB_PATH environment variable if set, otherwise default to ./findit.db
+	dbPath := os.Getenv("DB_PATH")
+	if dbPath == "" {
+		dbPath = "./findit.db"
+	}
+
 	var err error
-	DB, err = sql.Open("sqlite3", "./findit.db")
+	DB, err = sql.Open("sqlite3", dbPath)
 	if err != nil {
 		log.Fatalf("failed to open database: %v", err)
 	}

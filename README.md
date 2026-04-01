@@ -125,6 +125,56 @@ docker stop findit-server
 
 The application will be available at `http://localhost:8080`
 
+### 3. Deploy to Render
+
+#### Prerequisites
+- A Render account (https://render.com)
+- Your code pushed to a Git repository (GitHub, GitLab, or Bitbucket)
+
+#### Deployment Steps
+
+1. **Connect your repository to Render:**
+   - Log in to your Render dashboard
+   - Click "New" and select "Web Service"
+   - Connect your Git repository
+
+2. **Configure the service:**
+   - **Name:** findit-server (or your preferred name)
+   - **Environment:** Docker
+   - **Region:** Choose the closest to your users
+   - **Branch:** main (or your deployment branch)
+   - **Root Directory:** Leave empty (if Dockerfile is at root)
+
+3. **Set environment variables:**
+   - `PORT`: 8080 (Render will set this automatically)
+   - `DB_PATH`: /var/data/findit.db
+
+4. **Configure persistent disk:**
+   - Add a disk with mount path `/var/data`
+   - Size: 1 GB (adjust as needed)
+
+5. **Set health check path:**
+   - Health Check Path: `/health`
+
+6. **Deploy:**
+   - Click "Create Web Service"
+   - Render will automatically build and deploy your application
+
+#### Using render.yaml (Recommended)
+
+The project includes a `render.yaml` file for automatic configuration. Simply:
+1. Push your code to Git
+2. In Render dashboard, click "New" → "Blueprint"
+3. Connect your repository
+4. Render will automatically detect and apply the configuration
+
+#### Important Notes for Render
+
+- **Database Persistence:** The SQLite database is stored on a persistent disk at `/var/data/findit.db`
+- **Health Checks:** The `/health` endpoint is used for monitoring
+- **Auto-deploy:** Enabled by default - pushes to your main branch will trigger automatic deployments
+- **Free Tier:** Render's free tier may spin down after inactivity; consider upgrading for production use
+
 API Endpoints
 Authentication
 | Method | Endpoint | Description       |
