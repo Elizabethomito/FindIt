@@ -1,6 +1,8 @@
 const API = 'http://localhost:8080';
 let currentUser = null;
 let allItems = [];
+let pollingInterval = null;
+let currentItemId = null;
 
 // --- Auth ---
 
@@ -89,6 +91,7 @@ function logout() {
     document.getElementById('app-section').classList.add('hidden');
     document.getElementById('login-email').value = '';
     document.getElementById('login-password').value = '';
+    stopPolling();
 }
 
 // --- App ---
@@ -99,12 +102,12 @@ function showApp() {
     document.getElementById('user-info').textContent = currentUser.email;
     document.getElementById('item-date').valueAsDate = new Date();
     loadItems();
+    startPolling();
 }
 
 async function handleCreateItem(e) {
     e.preventDefault();
     const data = {
-        id: document.getElementById('item-id').value.trim(),
         user_id: currentUser.user_id,
         type: document.getElementById('item-type').value,
         name: document.getElementById('item-name').value.trim(),
@@ -137,10 +140,27 @@ async function handleCreateItem(e) {
 async function loadItems() {
     try {
         const res = await fetch(API + '/items');
-        allItems = await res.json();
-        renderItems(allItems);
+        const newItems = await res.json();
+        
+        // Check if items have changed
+        if (JSON.stringify(newItems) !== JSON.stringify(allItems)) {
+            allItems = newItems;
+            renderItems(allItems);
+        }
     } catch (err) {
         document.getElementById('items-list').innerHTML = '<p class="empty">Cannot load items.</p>';
+    }
+}
+
+function startPolling() {
+    // Poll for new items every 3 seconds
+    pollingInterval = setInterval(loadItems, 3000);
+}
+
+function stopPolling() {
+    if (pollingInterval) {
+        clearInterval(pollingInterval);
+        pollingInterval = null;
     }
 }
 
@@ -151,7 +171,7 @@ function renderItems(items) {
         return;
     }
     list.innerHTML = items.map(item => `
-        <div class="item-card ${item.type}">
+        <div class="item-card ${item.type}" onclick="showItemDetails('${item.id}')">
             <div class="item-info">
                 <h3>${escapeHtml(item.name)}</h3>
                 <p>${escapeHtml(item.description || 'No description')}</p>
@@ -178,6 +198,68 @@ function escapeHtml(str) {
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
+}
+
+// --- Item Details Modal ---
+
+function showItemDetails(itemId) {
+    const item = allItems.find(i => i.id === itemId);
+    if (!item) return;
+    
+    currentItemId = itemId;
+    document.getElementById('modal-name').textContent = item.name;
+    document.getElementById('modal-type').textContent = item.type.charAt(0).toUpperCase() + item.type.slice(1);
+    document.getElementById('modal-description').textContent = item.description || 'No description';
+    document.getElementById('modal-location').textContent = item.location || 'Unknown';
+    document.getElementById('modal-date').textContent = item.date || 'No date';
+    document.getElementById('modal-user').textContent = item.user_id;
+    
+    // Show delete button only if current user is the item owner
+    const deleteBtn = document.getElementById('delete-btn');
+    if (currentUser && item.user_id === currentUser.user_id) {
+        deleteBtn.classList.remove('hidden');
+    } else {
+        deleteBtn.classList.add('hidden');
+    }
+    
+    document.getElementById('item-modal').classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('item-modal').classList.add('hidden');
+    currentItemId = null;
+}
+
+async function deleteItem() {
+    if (!currentItemId) return;
+    
+    if (!confirm('Are you sure you want to delete this item?')) {
+        return;
+    }
+    
+    try {
+        const res = await fetch(API + '/items/' + currentItemId, {
+            method: 'DELETE'
+        });
+        
+        if (res.ok) {
+            closeModal();
+            loadItems(); // Reload items to reflect deletion
+        } else {
+            const json = await res.json();
+            alert(json.error || 'Failed to delete item');
+        }
+    } catch (err) {
+        alert('Cannot connect to server');
+    }
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('item-modal');
+    if (event.target === modal) {
+        closeModal();
+    }
 }
 
 // --- Init ---

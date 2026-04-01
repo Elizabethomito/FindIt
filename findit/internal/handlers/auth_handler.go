@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"findit/internal/db"
@@ -81,6 +82,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Printf("Login successful for user: %s, user_id: %s", creds.Email, user.ID)
 	utils.JSONResponse(w, http.StatusOK, map[string]string{
 		"message": "login successful",
 		"user_id": user.ID,
