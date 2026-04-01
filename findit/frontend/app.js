@@ -7,6 +7,7 @@ let currentItemId = null;
 // --- Auth ---
 
 function showTab(tab) {
+    console.log('showTab called with tab:', tab);
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     if (tab === 'login') {
         document.querySelector('.tab:first-child').classList.add('active');
@@ -21,12 +22,14 @@ function showTab(tab) {
 }
 
 function showMessage(el, text, type) {
+    console.log('showMessage called with text:', text, 'type:', type);
     el.textContent = text;
     el.className = 'message ' + type;
     setTimeout(() => { el.textContent = ''; el.className = 'message'; }, 4000);
 }
 
 function clearAuthMessage() {
+    console.log('clearAuthMessage called');
     const el = document.getElementById('auth-message');
     el.textContent = '';
     el.className = 'message';
@@ -34,11 +37,13 @@ function clearAuthMessage() {
 
 async function handleSignup(e) {
     e.preventDefault();
+    console.log('handleSignup called');
     const data = {
         id: document.getElementById('signup-id').value.trim(),
         email: document.getElementById('signup-email').value.trim(),
         password: document.getElementById('signup-password').value
     };
+    console.log('Signup attempt for user:', data.id);
     const msgEl = document.getElementById('auth-message');
 
     try {
@@ -61,10 +66,12 @@ async function handleSignup(e) {
 
 async function handleLogin(e) {
     e.preventDefault();
+    console.log('handleLogin called');
     const data = {
         email: document.getElementById('login-email').value.trim(),
         password: document.getElementById('login-password').value
     };
+    console.log('Login attempt for:', data.email);
     const msgEl = document.getElementById('auth-message');
 
     try {
@@ -86,6 +93,7 @@ async function handleLogin(e) {
 }
 
 function logout() {
+    console.log('logout called');
     currentUser = null;
     document.getElementById('auth-section').classList.remove('hidden');
     document.getElementById('app-section').classList.add('hidden');
@@ -97,6 +105,7 @@ function logout() {
 // --- App ---
 
 function showApp() {
+    console.log('showApp called');
     document.getElementById('auth-section').classList.add('hidden');
     document.getElementById('app-section').classList.remove('hidden');
     document.getElementById('user-info').textContent = currentUser.email;
@@ -107,6 +116,7 @@ function showApp() {
 
 async function handleCreateItem(e) {
     e.preventDefault();
+    console.log('handleCreateItem called');
     const data = {
         user_id: currentUser.user_id,
         type: document.getElementById('item-type').value,
@@ -115,6 +125,7 @@ async function handleCreateItem(e) {
         location: document.getElementById('item-location').value.trim(),
         date: document.getElementById('item-date').value
     };
+    console.log('Item data:', data);
     const msgEl = document.getElementById('item-message');
 
     try {
@@ -138,9 +149,11 @@ async function handleCreateItem(e) {
 }
 
 async function loadItems() {
+    console.log('loadItems called');
     try {
         const res = await fetch(API + '/items');
         const newItems = await res.json();
+        console.log('Loaded items:', newItems);
         
         // Check if items have changed
         if (JSON.stringify(newItems) !== JSON.stringify(allItems)) {
@@ -148,16 +161,19 @@ async function loadItems() {
             renderItems(allItems);
         }
     } catch (err) {
+        console.log('Error loading items:', err);
         document.getElementById('items-list').innerHTML = '<p class="empty">Cannot load items.</p>';
     }
 }
 
 function startPolling() {
+    console.log('startPolling called');
     // Poll for new items every 3 seconds
     pollingInterval = setInterval(loadItems, 3000);
 }
 
 function stopPolling() {
+    console.log('stopPolling called');
     if (pollingInterval) {
         clearInterval(pollingInterval);
         pollingInterval = null;
@@ -170,6 +186,7 @@ function renderItems(items) {
         list.innerHTML = '<p class="empty">No items reported yet.</p>';
         return;
     }
+    console.log('Rendering items:', items);
     list.innerHTML = items.map(item => `
         <div class="item-card ${item.type}" onclick="showItemDetails('${item.id}')">
             <div class="item-info">
@@ -185,6 +202,7 @@ function renderItems(items) {
 }
 
 function filterItems(type) {
+    console.log('filterItems called with type:', type);
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     event.target.classList.add('active');
     if (type === 'all') {
@@ -195,6 +213,7 @@ function filterItems(type) {
 }
 
 function escapeHtml(str) {
+    console.log('escapeHtml called with str:', str);
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
@@ -203,8 +222,13 @@ function escapeHtml(str) {
 // --- Item Details Modal ---
 
 function showItemDetails(itemId) {
+    console.log('showItemDetails called with itemId:', itemId);
     const item = allItems.find(i => i.id === itemId);
-    if (!item) return;
+    console.log('Found item:', item);
+    if (!item) {
+        console.log('Item not found!');
+        return;
+    }
     
     currentItemId = itemId;
     document.getElementById('modal-name').textContent = item.name;
@@ -222,15 +246,20 @@ function showItemDetails(itemId) {
         deleteBtn.classList.add('hidden');
     }
     
-    document.getElementById('item-modal').classList.remove('hidden');
+    const modal = document.getElementById('item-modal');
+    console.log('Modal element:', modal);
+    modal.classList.remove('hidden');
+    console.log('Modal hidden class removed');
 }
 
 function closeModal() {
+    console.log('closeModal called');
     document.getElementById('item-modal').classList.add('hidden');
     currentItemId = null;
 }
 
 async function deleteItem() {
+    console.log('deleteItem called, currentItemId:', currentItemId);
     if (!currentItemId) return;
     
     if (!confirm('Are you sure you want to delete this item?')) {
@@ -257,6 +286,7 @@ async function deleteItem() {
 // Close modal when clicking outside
 window.onclick = function(event) {
     const modal = document.getElementById('item-modal');
+    console.log('Window click event, target:', event.target, 'modal:', modal);
     if (event.target === modal) {
         closeModal();
     }
@@ -264,6 +294,7 @@ window.onclick = function(event) {
 
 // --- Init ---
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOMContentLoaded event fired');
     // Set today's date as default
     document.getElementById('item-date').valueAsDate = new Date();
 });
