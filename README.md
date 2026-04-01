@@ -175,6 +175,30 @@ The project includes a `render.yaml` file for automatic configuration. Simply:
 - **Auto-deploy:** Enabled by default - pushes to your main branch will trigger automatic deployments
 - **Free Tier:** Render's free tier may spin down after inactivity; consider upgrading for production use
 
+#### Troubleshooting Render Deployment
+
+**Error: "no Go files in /opt/render/project/go/src/github.com/..."**
+
+This error occurs when Render detects the `go.mod` file and tries to use a Go buildpack instead of the Dockerfile.
+
+**Solution:**
+1. Ensure your `render.yaml` file is at the root of your repository
+2. Verify the `render.yaml` contains `runtime: docker` and empty `buildCommand` and `startCommand`
+3. Make sure all files are committed and pushed to your Git repository
+4. In Render dashboard, use "New" → "Blueprint" to deploy using the `render.yaml` configuration
+5. If the issue persists, manually create a Web Service and select "Docker" as the runtime
+
+**Alternative Manual Setup:**
+If the blueprint doesn't work, manually create a Web Service:
+1. Go to Render dashboard → New → Web Service
+2. Connect your repository
+3. Set **Runtime** to "Docker"
+4. Set **Dockerfile Path** to "./Dockerfile"
+5. Set **Docker Context** to "."
+6. Add environment variables: `PORT=8080` and `DB_PATH=/var/data/findit.db`
+7. Add a disk with mount path `/var/data`
+8. Set health check path to `/health`
+
 API Endpoints
 Authentication
 | Method | Endpoint | Description       |

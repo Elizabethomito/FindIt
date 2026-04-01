@@ -2,6 +2,9 @@ services:
   - type: web
     name: findit-server
     runtime: docker
+    plan: free
+    buildCommand: ""
+    startCommand: ""
     dockerfilePath: ./Dockerfile
     dockerContext: .
     envVars:

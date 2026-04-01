@@ -19,6 +19,7 @@ LICENSE
 # Docker files
 Dockerfile
 docker-compose.yml
+render.yaml
 
 # Database files
 *.db
