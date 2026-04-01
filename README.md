@@ -1,83 +1,131 @@
-# FindIt – Lost & Found System
+# 🔍 FindIt – Lost & Found System
 
-A backend system for reporting and recovering lost items.
+FindIt is a full-stack web application that helps people report lost and found items and reconnect them with their rightful owners.
 
-## Tech Stack
+---
 
-- **Language:** Go
-- **Framework:** net/http (standard library)
-- **Database:** SQLite
-- **Auth:** bcrypt password hashing
+## 🚀 Overview
 
-## Running
+Losing items is frustrating — and finding them again is often a matter of luck.  
+
+**FindIt** simplifies this process by allowing users to:
+
+- Report lost items  
+- Report found items  
+- Browse all reported items  
+- Increase chances of reconnecting owners with their belongings  
+
+---
+
+## ✨ Features
+
+- 🔐 User authentication (Sign up & Login)
+- 📦 Create lost item reports
+- 📍 Create found item reports
+- 📋 View all reported items
+- 🔎 Filter items (Lost / Found)
+- 🌐 Clean and responsive UI
+
+---
+
+## 🛠️ Tech Stack
+
+### Backend
+- **Go (Golang)**
+- **SQLite**
+- **net/http** (standard library)
+
+### Frontend
+- **HTML**
+- **CSS**
+- **Vanilla JavaScript**
+
+---
+
+## 📁 Project Structure
+findit/
+
+│
+
+├── internal/
+
+│ ├── db/ # Database setup and migrations
+
+│ ├── handlers/ # API handlers
+
+│ ├── models/ # Data structures
+
+│ └── routes/ # Routing logic
+
+│
+
+├── pkg/
+
+│ └── utils/ # Helper utilities (JSON, JWT)
+
+│
+
+├── frontend/ # UI (HTML, CSS, JS)
+
+│
+
+├── main.go # Application entry point
+
+└── findit.db # SQLite database (auto-created)
+
+
+---
+
+## ⚙️ Getting Started
+
+### 1. Clone the repository
 
 ```bash
-go run cmd/server/main.go
+git clone https://github.com/YOUR_USERNAME/findit.git
+cd findit
+
+go mod tidy
+
+go run main.go
+
+http://localhost:8080
+
 ```
+API Endpoints
+Authentication
+| Method | Endpoint | Description       |
+| ------ | -------- | ----------------- |
+| POST   | /signup  | Register new user |
+| POST   | /login   | Login user        |
 
-Server starts on `:8080`.
+Items
+| Method | Endpoint | Description              |
+| ------ | -------- | ------------------------ |
+| POST   | /items   | Create item (lost/found) |
+| GET    | /items   | Retrieve all items       |
 
-## API Endpoints
+Example Request
 
-### Auth
-
-| Method | Endpoint  | Description         |
-|--------|-----------|---------------------|
-| POST   | /signup   | Register a new user |
-| POST   | /login    | Log in              |
-
-### Items
-
-| Method | Endpoint   | Description            |
-|--------|------------|------------------------|
-| POST   | /items     | Report a lost/found item |
-| GET    | /items     | List all reported items  |
-
-### Request Bodies
-
-**POST /signup**
-```json
 {
-  "id": "u1",
-  "email": "user@example.com",
-  "password": "1234"
+
+  "id": "1",
+
+  "user_id": "u1",
+
+  "type": "lost",
+
+  "name": "Black Phone",
+
+  "description": "iPhone with cracked screen",
+
+  "location": "Nairobi",
+
+  "date": "2026-04-01"
+
 }
-```
 
-**POST /login**
-```json
-{
-  "email": "user@example.com",
-  "password": "1234"
-}
-```
+-Each item must have a unique ID
 
-**POST /items**
-```json
-{
-  "id": "i1",
-  "title": "Black Wallet",
-  "description": "Found near the bus stop",
-  "type": "found",
-  "user_id": "u1"
-}
-```
+-The user_id must exist before creating an item
 
-## Project Structure
-
-```
-findit/
-├── cmd/server/main.go
-├── internal/
-│   ├── handlers/
-│   │   ├── auth_handler.go
-│   │   └── item_handler.go
-│   ├── models/
-│   │   ├── user.go
-│   │   └── item.go
-│   ├── routes/routes.go
-│   └── db/db.go
-├── pkg/utils/response.go
-├── go.mod
-└── README.md
-```
+-The database is created automatically on first run
