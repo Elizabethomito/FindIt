@@ -3,8 +3,6 @@ services:
     name: findit-server
     runtime: docker
     plan: free
-    buildCommand: ""
-    startCommand: ""
     dockerfilePath: ./Dockerfile
     dockerContext: .
     envVars:
@@ -18,3 +16,9 @@ services:
       sizeGB: 1
     healthCheckPath: /health
     autoDeploy: true
+    buildFilter:
+      paths:
+        - "**/*"
+      ignoredPaths:
+        - "README.md"
+        - ".gitignore"

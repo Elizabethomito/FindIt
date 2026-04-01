@@ -179,17 +179,9 @@ The project includes a `render.yaml` file for automatic configuration. Simply:
 
 **Error: "no Go files in /opt/render/project/go/src/github.com/..."**
 
-This error occurs when Render detects the `go.mod` file and tries to use a Go buildpack instead of the Dockerfile.
+This error occurs when Render detects the `go.mod` file and tries to use a Go buildpack instead of the Dockerfile, even with `runtime: docker` specified.
 
-**Solution:**
-1. Ensure your `render.yaml` file is at the root of your repository
-2. Verify the `render.yaml` contains `runtime: docker` and empty `buildCommand` and `startCommand`
-3. Make sure all files are committed and pushed to your Git repository
-4. In Render dashboard, use "New" → "Blueprint" to deploy using the `render.yaml` configuration
-5. If the issue persists, manually create a Web Service and select "Docker" as the runtime
-
-**Alternative Manual Setup:**
-If the blueprint doesn't work, manually create a Web Service:
+**Solution 1: Manual Docker Setup (Recommended)**
 1. Go to Render dashboard → New → Web Service
 2. Connect your repository
 3. Set **Runtime** to "Docker"
@@ -198,6 +190,27 @@ If the blueprint doesn't work, manually create a Web Service:
 6. Add environment variables: `PORT=8080` and `DB_PATH=/var/data/findit.db`
 7. Add a disk with mount path `/var/data`
 8. Set health check path to `/health`
+9. Deploy
+
+**Solution 2: Use Docker Hub**
+1. Build and push your Docker image to Docker Hub:
+   ```bash
+   docker build -t yourusername/findit-server .
+   docker push yourusername/findit-server
+   ```
+2. In Render, create a new Web Service
+3. Set **Runtime** to "Docker"
+4. Set **Image** to "yourusername/findit-server"
+5. Add environment variables and disk as above
+
+**Solution 3: Alternative Platforms**
+If Render continues to have issues, consider these alternatives:
+- **Railway**: Supports Docker deployments with persistent volumes
+- **Fly.io**: Excellent Docker support with persistent storage
+- **DigitalOcean App Platform**: Supports Docker with volume mounts
+- **AWS ECS/Fargate**: More complex but very reliable
+
+**Note:** The `render.yaml` blueprint may not work reliably when a `go.mod` file is present. Manual Docker setup is more reliable.
 
 API Endpoints
 Authentication
