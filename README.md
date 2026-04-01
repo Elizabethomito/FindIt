@@ -91,6 +91,40 @@ go run main.go
 http://localhost:8080
 
 ```
+
+### 2. Using Docker (Recommended)
+
+#### Build and run with Docker Compose
+
+```bash
+# Build and start the container
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop the container
+docker-compose down
+```
+
+#### Build and run with Docker directly
+
+```bash
+# Build the Docker image
+docker build -t findit-server .
+
+# Run the container
+docker run -d -p 8080:8080 -v $(pwd)/data:/app/data --name findit-server findit-server
+
+# View logs
+docker logs -f findit-server
+
+# Stop the container
+docker stop findit-server
+```
+
+The application will be available at `http://localhost:8080`
+
 API Endpoints
 Authentication
 | Method | Endpoint | Description       |

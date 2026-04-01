@@ -1,0 +1,28 @@
+# Build artifacts
+findit-server
+findit.db
+
+# Version control
+.git
+.gitignore
+
+# IDE files
+.vscode
+.idea
+*.swp
+*.swo
+
+# Documentation
+README.md
+LICENSE
+
+# Docker files
+Dockerfile
+docker-compose.yml
+
+# Database files
+*.db
+
+# Temporary files
+tmp/
+temp/
