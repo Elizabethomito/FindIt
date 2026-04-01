@@ -1,15 +1,20 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 
+	"findit/internal/db"
 	"findit/internal/routes"
 )
 
 func main() {
-	routes.RegisterRoutes()
+	db.Init()
 
-	fmt.Println("Server running on localhost:8080")
-	http.ListenAndServe(":8080", nil)
+	mux := routes.Register()
+
+	log.Println("FindIt server starting on http://localhost:8080/")
+	if err := http.ListenAndServe(":8080", mux); err != nil {
+		log.Fatalf("server failed: %v", err)
+	}
 }
