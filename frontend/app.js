@@ -1,4 +1,4 @@
-const API = 'http://localhost:8080';
+const API = '';
 let currentUser = null;
 let allItems = [];
 let pollingInterval = null;
